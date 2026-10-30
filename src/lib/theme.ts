@@ -128,36 +128,39 @@ const waSombre: CouleursWa = {
 }
 
 /**
- * Palette sombre de la mise en route : l'esprit Revolut (fond sombre, grands
- * titres, un seul gros bouton) mais aux couleurs de l'app, le vert et le
- * bleu nuit du WhatsApp sombre, pour ne pas dépayser.
+ * Palette de la mise en route, à la Revolut : un dégradé bleu-vert profond
+ * (voir `degradeMiseEnRoute`), des cartes translucides, un seul bouton blanc.
+ * Les couleurs restent douces ; le vert de l'app teinte le haut du dégradé.
  */
 export const revolut: CouleursWa = {
-  fond: '#0B141A',
-  encre: '#E9EDEF',
-  gris: '#8696A0',
-  ligne: '#233138',
-  vert: '#21C063',
-  vertWash: '#103529',
-  vertEncre: '#7AE3A5',
-  surVert: '#0B141A',
-  danger: '#F15C6D',
-  zoneMoi: '#53BDEB',
-  chipBord: '#2E3D45',
-  chipEncre: '#D1D7DB',
-  champ: '#1F2C34',
-  bouton: '#1F2C34',
-  barre: '#0B141A',
-  avatar: '#2A3942',
-  avatarIcone: '#8696A0',
-  papier: '#0B141A',
-  bulleOut: '#144D37',
-  bulleIn: '#1F2C34',
-  bulleMeta: '#8696A0',
-  lu: '#53BDEB',
-  saisie: '#1F2C34',
-  pastille: '#1F2C34',
+  fond: '#0B1A20',
+  encre: '#FFFFFF',
+  gris: 'rgba(255,255,255,0.62)',
+  ligne: 'rgba(255,255,255,0.10)',
+  vert: '#FFFFFF',
+  vertWash: '#FFFFFF',
+  vertEncre: '#0B1A20',
+  surVert: '#0B1A20',
+  danger: '#FF8A8A',
+  zoneMoi: '#8EC5FF',
+  chipBord: 'rgba(255,255,255,0.20)',
+  chipEncre: 'rgba(255,255,255,0.88)',
+  champ: 'rgba(255,255,255,0.09)',
+  bouton: 'rgba(255,255,255,0.09)',
+  barre: 'transparent',
+  avatar: 'rgba(255,255,255,0.14)',
+  avatarIcone: 'rgba(255,255,255,0.6)',
+  papier: 'transparent',
+  bulleOut: 'rgba(255,255,255,0.14)',
+  bulleIn: 'rgba(255,255,255,0.09)',
+  bulleMeta: 'rgba(255,255,255,0.62)',
+  lu: '#8EC5FF',
+  saisie: 'rgba(255,255,255,0.09)',
+  pastille: 'rgba(255,255,255,0.09)',
 }
+
+/** Le dégradé de fond de la mise en route, du haut vers le bas. */
+export const degradeMiseEnRoute = ['#17484A', '#0F2A31', '#0A161B']
 
 /** Force une palette pour un écran entier (la mise en route en sombre). */
 export const ThemeWa = createContext<CouleursWa | null>(null)

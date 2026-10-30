@@ -9,7 +9,8 @@ import { ETAPES_COMPLETES, ETAPES_RAPIDES, useEtat, type Canal, type Etape } fro
 import { AvatarVide, Icon } from '@/lib/icons'
 import { telLisible } from '@/lib/tel'
 import { StatusBar } from 'expo-status-bar'
-import { ThemeWa, marques, num, revolut, useWa } from '@/lib/theme'
+import Svg, { Defs, LinearGradient as Degrade, Rect, Stop } from 'react-native-svg'
+import { ThemeWa, degradeMiseEnRoute, marques, num, revolut, useWa } from '@/lib/theme'
 
 /**
  * Le questionnaire de Paramètres : une question par écran, une barre de
@@ -21,7 +22,17 @@ export default function Configurer() {
   return (
     <ThemeWa.Provider value={revolut}>
       <StatusBar style="light" />
-      <Questionnaire />
+      <View style={[s.flex, { backgroundColor: revolut.fond }]}>
+        <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
+          <Defs>
+            <Degrade id="fondMiseEnRoute" x1="0" y1="0" x2="0" y2="1">
+              {degradeMiseEnRoute.map((c, k) => <Stop key={c} offset={k / (degradeMiseEnRoute.length - 1)} stopColor={c} />)}
+            </Degrade>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#fondMiseEnRoute)" />
+        </Svg>
+        <Questionnaire />
+      </View>
     </ThemeWa.Provider>
   )
 }
@@ -50,7 +61,7 @@ function Questionnaire() {
   if (fini) return <Fin onFermer={fermer} rapide={rapide} />
 
   return (
-    <KeyboardAvoidingView style={[s.flex, { backgroundColor: wa.fond }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={[s.entete, { paddingTop: insets.top + 8 }]}>
         <Pressable onPress={() => (i > 0 ? setI(i - 1) : fermer())} hitSlop={10} accessibilityRole="button"
                    accessibilityLabel={i > 0 ? 'Étape précédente' : 'Fermer'} style={s.enteteBouton}>
@@ -130,7 +141,7 @@ function Contenu({ etape }: { etape: Etape }) {
               </View>
               <View style={[s.chambreLigne, { borderTopColor: wa.ligne }]}>
                 <Text style={[s.chambreLabel, { color: wa.encre }]}>Prix par nuit</Text>
-                <View style={[s.prix, { backgroundColor: wa.fond }]}>
+                <View style={[s.prix, { backgroundColor: wa.champ }]}>
                   <Text style={[s.prixDevise, { color: wa.gris }]}>$</Text>
                   <TextInput value={c.prix} onChangeText={(prix) => maj(c.id, { prix: prix.replace(/\D/g, '') })} keyboardType="number-pad"
                              placeholder="0" placeholderTextColor={wa.gris} accessibilityLabel="Prix par nuit en pesos"
@@ -383,7 +394,7 @@ function Fin({ onFermer, rapide }: { onFermer: () => void; rapide: boolean }) {
   const { config, lancerAgent } = useEtat()
   const allerAuxDiscussions = () => { if (router.canDismiss()) router.dismissAll(); router.navigate('/') }
   return (
-    <View style={[s.flex, s.fin, { backgroundColor: wa.fond, paddingTop: insets.top + 24, paddingBottom: Math.max(insets.bottom, 16) }]}>
+    <View style={[s.flex, s.fin, { paddingTop: insets.top + 24, paddingBottom: Math.max(insets.bottom, 16) }]}>
       <View style={s.finCentre}>
         <View style={[s.finRond, { backgroundColor: wa.vertWash }]}><Icon name={rapide ? 'sparkles' : 'checkPlain'} size={44} color={wa.vert} trait={2.6} /></View>
         <Text style={[s.finTitre, { color: wa.encre }]}>

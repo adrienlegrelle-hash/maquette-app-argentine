@@ -118,7 +118,7 @@ const s = StyleSheet.create({
   sous: { fontSize: 16, lineHeight: 22 },
   libelle: { fontSize: 13, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 8, marginLeft: 4 },
   champBloc: { gap: 6 },
-  champ: { minHeight: 50, borderRadius: 12, paddingHorizontal: 14, fontSize: 17 },
+  champ: { minHeight: 52, borderRadius: 16, paddingHorizontal: 16, fontSize: 17 },
   puces: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   puce: { borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 16, minHeight: 42, justifyContent: 'center' },
   puceTexte: { fontSize: 16, fontWeight: '500' },
@@ -130,7 +130,7 @@ const s = StyleSheet.create({
   compteur: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   compteurBouton: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   compteurValeur: { fontSize: 20, fontWeight: '600', minWidth: 24, textAlign: 'center' },
-  groupe: { borderRadius: 14, paddingHorizontal: 14 },
+  groupe: { borderRadius: 20, paddingHorizontal: 16 },
   note: { flexDirection: 'row', gap: 10, borderRadius: 12, padding: 12, alignItems: 'flex-start' },
   noteTexte: { flex: 1, fontSize: 15, lineHeight: 21 },
 })
