@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react'
 import { useColorScheme } from 'react-native'
 
 /**
@@ -126,8 +127,45 @@ const waSombre: CouleursWa = {
   pastille: '#1F2C34',
 }
 
+/**
+ * Palette sombre « à la Revolut » pour la mise en route : fond presque noir,
+ * grands titres blancs, bouton principal blanc. Elle remplace la palette
+ * WhatsApp pour tout ce qui est rendu dans `ThemeWa`.
+ */
+export const revolut: CouleursWa = {
+  fond: '#0B0B0F',
+  encre: '#FFFFFF',
+  gris: '#9A9AA5',
+  ligne: '#26262E',
+  vert: '#FFFFFF',
+  vertWash: '#FFFFFF',
+  vertEncre: '#0B0B0F',
+  surVert: '#0B0B0F',
+  danger: '#FF5C5C',
+  zoneMoi: '#7B86FF',
+  chipBord: '#3A3A45',
+  chipEncre: '#C9C9D2',
+  champ: '#1B1B22',
+  bouton: '#1B1B22',
+  barre: '#0B0B0F',
+  avatar: '#2A2A33',
+  avatarIcone: '#8E8E9A',
+  papier: '#0B0B0F',
+  bulleOut: '#1B1B22',
+  bulleIn: '#1B1B22',
+  bulleMeta: '#9A9AA5',
+  lu: '#53BDEB',
+  saisie: '#1B1B22',
+  pastille: '#1B1B22',
+}
+
+/** Force une palette pour un écran entier (la mise en route en sombre). */
+export const ThemeWa = createContext<CouleursWa | null>(null)
+
 export function useWa(): CouleursWa {
-  return useColorScheme() === 'dark' ? waSombre : waClair
+  const force = useContext(ThemeWa)
+  const sombre = useColorScheme() === 'dark'
+  return force ?? (sombre ? waSombre : waClair)
 }
 
 /** Échelle de la refonte (docs/refonte/02-systeme-visuel.md). */

@@ -60,7 +60,8 @@ export function Interrupteur({ label, sous, valeur, onChange, avant }: { label: 
         <Text style={[s.ligneTexte, { color: wa.encre }]}>{label}</Text>
         {sous && <Text style={[s.ligneSous, { color: wa.gris }]}>{sous}</Text>}
       </View>
-      <Switch value={valeur} onValueChange={onChange} trackColor={{ true: wa.vert, false: wa.chipBord }} thumbColor={wa.surVert} />
+      <Switch value={valeur} onValueChange={onChange} trackColor={{ true: wa.vert, false: wa.chipBord }} thumbColor={valeur ? wa.surVert : wa.fond}
+              {...({ activeThumbColor: wa.surVert } as object)} />
     </Pressable>
   )
 }
@@ -113,7 +114,7 @@ export function Note({ children, ok }: { children: ReactNode; ok?: boolean }) {
 const s = StyleSheet.create({
   flex: { flex: 1 },
   question: { gap: 8, marginBottom: 8 },
-  titre: { fontSize: 28, fontWeight: '700', lineHeight: 34 },
+  titre: { fontSize: 32, fontWeight: '800', lineHeight: 38, letterSpacing: -0.5 },
   sous: { fontSize: 16, lineHeight: 22 },
   libelle: { fontSize: 13, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 8, marginLeft: 4 },
   champBloc: { gap: 6 },

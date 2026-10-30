@@ -8,14 +8,25 @@ import { esquisse } from '@/lib/demo'
 import { ETAPES_COMPLETES, ETAPES_RAPIDES, useEtat, type Canal, type Etape } from '@/lib/etat'
 import { AvatarVide, Icon } from '@/lib/icons'
 import { telLisible } from '@/lib/tel'
-import { marques, num, useWa } from '@/lib/theme'
+import { StatusBar } from 'expo-status-bar'
+import { ThemeWa, marques, num, revolut, useWa } from '@/lib/theme'
 
 /**
  * Le questionnaire de Paramètres : une question par écran, une barre de
  * progression, « Continuer » sous le pouce. On peut passer une étape et y
  * revenir depuis Paramètres.
  */
+/** La mise en route, en sombre : une question à la fois, un seul gros bouton blanc. */
 export default function Configurer() {
+  return (
+    <ThemeWa.Provider value={revolut}>
+      <StatusBar style="light" />
+      <Questionnaire />
+    </ThemeWa.Provider>
+  )
+}
+
+function Questionnaire() {
   const wa = useWa()
   const insets = useSafeAreaInsets()
   const { etape, parcours } = useLocalSearchParams<{ etape?: string; parcours?: string }>()
