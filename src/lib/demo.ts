@@ -159,15 +159,15 @@ const sejoursFixes: Sejour[] = [
   { id: 's1', nom: 'Agustina Vera', chambre: 'Double', debut: '2026-10-27', fin: '2026-10-29', statut: 'confirmee', canal: 'whatsapp', convId: 'agustina', tel: '+54 9 11 3391-7720', adultes: 2, enfants: 0, options: ['Petit-déjeuner'], montant: 136000, paye: 136000 },
   { id: 's2', nom: 'Agustín Ríos', chambre: 'Double', debut: '2026-10-30', fin: '2026-11-01', statut: 'confirmee', canal: 'instagram', adultes: 2, enfants: 0, options: ['Petit-déjeuner', 'Arrivée tardive (22 h)'], montant: 136000, paye: 136000 },
   { id: 's3', nom: 'Familia Paredes', chambre: 'Cabane 4', debut: '2026-10-30', fin: '2026-11-02', statut: 'attente', canal: 'whatsapp', tel: '+54 9 387 440-1278', adultes: 2, enfants: 2, options: ['Lit bébé'], montant: 285000, paye: 85500 },
-  { id: 's4', nom: 'Booking', chambre: 'Double', debut: '2026-10-31', fin: '2026-11-02', statut: 'bloque', source: 'Booking', canal: 'booking', adultes: 2, enfants: 0, options: [], montant: 0, paye: 0 },
+  { id: 's4', nom: 'Booking', chambre: 'Double', debut: '2026-10-31', fin: '2026-11-02', statut: 'bloque', source: 'Booking', canal: 'booking', adultes: 2, enfants: 0, options: [], montant: 136000, paye: 136000 },
   { id: 's5', nom: 'Nahuel Quispe', chambre: 'Dortoir', debut: '2026-10-31', fin: '2026-11-01', statut: 'confirmee', canal: 'whatsapp', convId: 'nahuel', tel: '+54 9 388 430-2271', adultes: 1, enfants: 0, options: [], montant: 18000, paye: 18000 },
   { id: 's6', nom: 'Silvia Ruiz', chambre: 'Double', debut: '2026-11-02', fin: '2026-11-04', statut: 'confirmee', canal: 'whatsapp', convId: 'silvia', tel: '+54 9 351 702-4485', adultes: 2, enfants: 0, options: ['Petit-déjeuner'], montant: 136000, paye: 136000 },
-  { id: 's7', nom: 'Airbnb', chambre: 'Dortoir', debut: '2026-11-06', fin: '2026-11-09', statut: 'bloque', source: 'Airbnb', canal: 'airbnb', adultes: 1, enfants: 0, options: [], montant: 0, paye: 0 },
+  { id: 's7', nom: 'Airbnb', chambre: 'Dortoir', debut: '2026-11-06', fin: '2026-11-09', statut: 'bloque', source: 'Airbnb', canal: 'airbnb', adultes: 1, enfants: 0, options: [], montant: 54000, paye: 54000 },
   { id: 's8', nom: 'Ramón Díaz', chambre: 'Double', debut: '2026-11-07', fin: '2026-11-09', statut: 'attente', canal: 'whatsapp', convId: 'ramon', tel: '+54 9 388 619-0072', adultes: 2, enfants: 1, options: ['Animal (chien)'], montant: 136000, paye: 0 },
   { id: 's9', nom: 'Hilda Mamani', chambre: 'Cabane 4', debut: '2026-11-08', fin: '2026-11-10', statut: 'confirmee', canal: 'whatsapp', convId: 'hilda', tel: '+54 9 388 245-8813', adultes: 3, enfants: 1, options: ['Petit-déjeuner', 'Parking'], montant: 190000, paye: 190000 },
   { id: 's10', nom: 'Juan Pérez', chambre: 'Double', debut: '2026-11-12', fin: '2026-11-15', statut: 'confirmee', canal: 'instagram', adultes: 2, enfants: 0, options: [], montant: 204000, paye: 204000 },
   { id: 's11', nom: 'Carla Méndez', chambre: 'Dortoir', debut: '2026-11-20', fin: '2026-11-22', statut: 'confirmee', canal: 'whatsapp', tel: '+54 9 11 5520-3348', adultes: 1, enfants: 0, options: [], montant: 36000, paye: 36000 },
-  { id: 's12', nom: 'Booking', chambre: 'Cabane 4', debut: '2026-11-27', fin: '2026-11-30', statut: 'bloque', source: 'Booking', canal: 'booking', adultes: 4, enfants: 0, options: [], montant: 0, paye: 0 },
+  { id: 's12', nom: 'Booking', chambre: 'Cabane 4', debut: '2026-11-27', fin: '2026-11-30', statut: 'bloque', source: 'Booking', canal: 'booking', adultes: 4, enfants: 0, options: [], montant: 285000, paye: 285000 },
   { id: 's13', nom: 'Lucía Fernández', chambre: 'Cabane 4', debut: '2026-12-15', fin: '2026-12-17', statut: 'attente', canal: 'whatsapp', convId: 'lucia', tel: '+54 9 381 566-0934', adultes: 4, enfants: 0, options: [], montant: 190000, paye: 0 },
 ]
 
@@ -207,16 +207,6 @@ export const chambresDuSite = [
 ]
 
 /** Les statistiques par mois et par canal (écran Statistiques, depuis le Menu). */
-export type CanalStat = 'whatsapp' | 'instagram' | 'messenger' | 'booking' | 'direct'
-export const statsMois: { mois: string; reponse: string; seul: number; demandes: number; canaux: Record<CanalStat, { reservations: number; montant: number }> }[] = [
-  { mois: 'Août 2026', reponse: '1 min 10', seul: 64, demandes: 96,
-    canaux: { whatsapp: { reservations: 9, montant: 1530000 }, instagram: { reservations: 3, montant: 420000 }, messenger: { reservations: 1, montant: 136000 }, booking: { reservations: 6, montant: 1105000 }, direct: { reservations: 2, montant: 260000 } } },
-  { mois: 'Septembre 2026', reponse: '52 s', seul: 73, demandes: 118,
-    canaux: { whatsapp: { reservations: 13, montant: 2210000 }, instagram: { reservations: 4, montant: 560000 }, messenger: { reservations: 2, montant: 254000 }, booking: { reservations: 5, montant: 940000 }, direct: { reservations: 1, montant: 136000 } } },
-  { mois: 'Octobre 2026', reponse: '38 s', seul: 81, demandes: 142,
-    canaux: { whatsapp: { reservations: 16, montant: 3380000 }, instagram: { reservations: 4, montant: 830000 }, messenger: { reservations: 1, montant: 190000 }, booking: { reservations: 4, montant: 760000 }, direct: { reservations: 2, montant: 450000 } } },
-]
-
 /** Ce que l'analyse du site, de Booking et de Google « trouve », en démo. */
 export const esquisse = {
   hotel: 'Hostal Los Andes',
@@ -298,7 +288,7 @@ function genererSejours(): Sejour[] {
 
   let n = 0
   for (const u of unites) {
-    for (let jour = '2026-09-28'; jour < '2027-01-06';) {
+    for (let jour = '2026-07-27'; jour < '2027-01-06';) {
       const jsem = new Date(jour + 'T00:00:00Z').getUTCDay()
       const weekend = jsem === 5 || jsem === 6
       const nb = weekend ? 2 + Math.floor(r() * 2) : 1 + Math.floor(r() * 3)
@@ -309,7 +299,7 @@ function genererSejours(): Sejour[] {
         const ical = canal === 'booking' || canal === 'airbnb'
         const futur = jour >= AUJOURDHUI
         const statut: Sejour['statut'] = ical ? 'bloque' : futur && r() < 0.2 ? 'attente' : 'confirmee'
-        const montant = ical ? 0 : nb * PRIX[u.type]
+        const montant = nb * PRIX[u.type]
         tous.push({
           id: `g${++n}`, nom: ical ? (canal === 'booking' ? 'Booking' : 'Airbnb') : PRENOMS[Math.floor(r() * PRENOMS.length)],
           chambre: u.type, debut: jour, fin: plus(jour, nb), statut, source: ical ? (canal === 'booking' ? 'Booking' : 'Airbnb') : undefined,
@@ -350,12 +340,28 @@ export const tableau = {
     libres: stock - sejours.filter((s) => s.chambre === type && s.debut <= AUJ && AUJ < s.fin).length,
     stock,
   })),
-  aEncaisser: sejours.filter((s) => s.statut === 'attente' && s.fin > AUJ && s.montant > s.paye).slice(0, 4)
-    .map((s) => ({ nom: s.nom, montant: s.montant - s.paye, echeance: { es: `llega el ${s.debut.slice(8)}/${s.debut.slice(5, 7)}`, fr: `arrivée le ${s.debut.slice(8)}/${s.debut.slice(5, 7)}` } })),
+  aEncaisser: sejours.filter((s) => s.statut === 'attente' && s.fin > AUJ && s.montant > s.paye)
+    .map((s) => ({ id: s.id, debut: s.debut, nom: s.nom, montant: s.montant - s.paye, echeance: { es: `llega el ${s.debut.slice(8)}/${s.debut.slice(5, 7)}`, fr: `arrivée le ${s.debut.slice(8)}/${s.debut.slice(5, 7)}` } })),
   semaine: Array.from({ length: 7 }, (_, k) => {
     const j = plus(AUJ, k); const d = new Date(j + 'T00:00:00Z').getUTCDay()
     return { es: JOURS_ES[d], fr: JOURS_FR[d], occ: occupation(j) }
   }),
   totalUnites: UNITES,
-  mois: { reservations: 23, encaisse: 4850000, reponse: '38 s', seul: 81 },
 }
+
+/** Les statistiques par mois et par canal, comptées sur les séjours (par mois d'arrivée). */
+export type CanalStat = 'whatsapp' | 'instagram' | 'booking' | 'airbnb'
+const MOIS_STATS = [
+  { cle: '2026-08', mois: 'Août 2026', reponse: '1 min 10', seul: 64 },
+  { cle: '2026-09', mois: 'Septembre 2026', reponse: '52 s', seul: 73 },
+  { cle: '2026-10', mois: 'Octobre 2026', reponse: '38 s', seul: 81 },
+]
+export const statsMois = MOIS_STATS.map((m) => {
+  const du = sejours.filter((x) => x.debut.startsWith(m.cle))
+  const canaux = Object.fromEntries((['whatsapp', 'instagram', 'booking', 'airbnb'] as CanalStat[]).map((c) => {
+    const l = du.filter((x) => x.canal === c)
+    return [c, { reservations: l.length, montant: l.reduce((n, x) => n + x.paye, 0) }]
+  })) as Record<CanalStat, { reservations: number; montant: number }>
+  const directs = du.filter((x) => x.canal === 'whatsapp' || x.canal === 'instagram').length
+  return { mois: m.mois, reponse: m.reponse, seul: m.seul, demandes: Math.round(directs * 3.4), canaux }
+})

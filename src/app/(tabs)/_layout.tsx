@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AgentDemiEcran } from '@/components/Agent'
 import { Halo } from '@/components/Repere'
-import { useEtat, useT } from '@/lib/etat'
+import { estPourMoi, useEtat, useT } from '@/lib/etat'
 import { Icon, type IconName } from '@/lib/icons'
 import { useWa } from '@/lib/theme'
 
@@ -18,9 +18,12 @@ import { useWa } from '@/lib/theme'
 export default function OngletsLayout() {
   const t = useT()
   const pathname = usePathname()
-  const { conecte, convs, agentLance, bulleFermee, fermerBulle, agent } = useEtat()
+  const { conecte, convs, agentLance, bulleFermee, fermerBulle, agent, regleContacts } = useEtat()
   const [barre, setBarre] = useState({ largeur: 0, hauteur: 0 })
-  const nonLues = conecte ? convs.filter((c) => c.nonLus > 0).length : 0
+  // La pastille de Discussions ne compte que ce qui demande une réponse à la main :
+  // « Action requise » une fois l'agent lancé, les non-lus avant (personne ne répond encore).
+  const aRepondre = convs.filter((c) => !estPourMoi(c, regleContacts) && (agentLance ? c.colonne === 'action' : c.nonLus > 0))
+  const nonLues = conecte ? aRepondre.length : 0
   const aConfigurer = !agentLance
   const bulle = aConfigurer && !bulleFermee && pathname !== '/ajustes' && barre.hauteur > 0
 

@@ -10,9 +10,8 @@ import { num, useWa } from '@/lib/theme'
 const CANAUX: { cle: CanalStat; nom: string; logo?: Logo }[] = [
   { cle: 'whatsapp', nom: 'WhatsApp', logo: 'whatsapp' },
   { cle: 'instagram', nom: 'Instagram', logo: 'instagram' },
-  { cle: 'messenger', nom: 'Messenger', logo: 'messenger' },
   { cle: 'booking', nom: 'Booking', logo: 'booking' },
-  { cle: 'direct', nom: 'Sur place ou téléphone' },
+  { cle: 'airbnb', nom: 'Airbnb' },
 ]
 
 /** Les statistiques, mois par mois : ce qui est arrivé par chaque canal. */
@@ -21,10 +20,10 @@ export default function Stats() {
   const insets = useSafeAreaInsets()
   const [i, setI] = useState(statsMois.length - 1)
   const m = statsMois[i]
-  const lignes = CANAUX.map((c) => ({ ...c, ...m.canaux[c.cle] }))
+  const lignes = CANAUX.map((c) => ({ ...c, ...m.canaux[c.cle] })).filter((l) => l.reservations > 0)
   const total = lignes.reduce((n, l) => ({ reservations: n.reservations + l.reservations, montant: n.montant + l.montant }), { reservations: 0, montant: 0 })
   const max = Math.max(...lignes.map((l) => l.montant))
-  const horsBooking = total.montant - m.canaux.booking.montant
+  const horsBooking = m.canaux.whatsapp.montant + m.canaux.instagram.montant
 
   return (
     <View style={[s.flex, { backgroundColor: wa.fond }]}>
