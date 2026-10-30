@@ -14,6 +14,9 @@ function pl(n: number, mot: string) {
   return `${n} ${mot}${n > 1 ? 's' : ''}`
 }
 
+/** Lignes de la journée visibles avant « Voir plus ». */
+const APERCU = 3
+
 /**
  * Le tableau de bord (onglet Menu), en briefing : une phrase sur la journée,
  * le remplissage de ce soir, puis la journée heure par heure. Tout est compté
@@ -23,6 +26,7 @@ export default function Tablero() {
   const wa = useWa()
   const { ouvrirAgent, config } = useEtat()
   const [question, setQuestion] = useState('')
+  const [tout, setTout] = useState(false)
   const envoyer = () => { ouvrirAgent(question.trim() || undefined); setQuestion('') }
 
   const arrivees = sejours.filter((s) => s.debut === AUJOURDHUI && s.statut !== 'bloque')
@@ -66,7 +70,7 @@ export default function Tablero() {
         <View style={s.bloc}>
           <Text style={[s.titreSection, { color: wa.gris }]}>Votre journée</Text>
           {lignes.length === 0 && <Text style={[s.petit, { color: wa.gris }]}>Ni arrivée ni départ aujourd’hui.</Text>}
-          {lignes.map((l) => (
+          {(tout ? lignes : lignes.slice(0, APERCU)).map((l) => (
             <Pressable key={l.s.id + l.quoi} onPress={() => router.push({ pathname: '/reservation/[id]', params: { id: l.s.id } })}
                        style={({ pressed }) => [s.creneau, pressed && { opacity: 0.6 }]}>
               <Text style={[s.heure, num, { color: wa.gris }]}>{l.heure}</Text>
@@ -81,6 +85,15 @@ export default function Tablero() {
               <Icon name="chevR" size={16} color={wa.gris} />
             </Pressable>
           ))}
+          {lignes.length > APERCU && (
+            <Pressable onPress={() => setTout(!tout)} accessibilityRole="button" hitSlop={6}
+                       style={({ pressed }) => [s.voirPlus, pressed && { opacity: 0.6 }]}>
+              <Text style={[s.voirPlusTexte, num, { color: wa.vert }]}>
+                {tout ? 'Voir moins' : `Voir plus (${lignes.length - APERCU})`}
+              </Text>
+              <Icon name="chevD" size={16} color={wa.vert} />
+            </Pressable>
+          )}
         </View>
 
         {semaine.length > 0 && (
@@ -147,6 +160,8 @@ const s = StyleSheet.create({
   heure: { width: 40, fontSize: 14, fontWeight: '600' },
   trait: { width: 3, alignSelf: 'stretch', borderRadius: 2 },
   creneauTitre: { fontSize: 16, fontWeight: '600' },
+  voirPlus: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 40, paddingLeft: 52 },
+  voirPlusTexte: { fontSize: 15, fontWeight: '600' },
   paiement: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 48 },
   montant: { fontSize: 16, fontWeight: '600' },
   stats: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 14, paddingHorizontal: 14, minHeight: 50 },
