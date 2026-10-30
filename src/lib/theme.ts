@@ -128,35 +128,35 @@ const waSombre: CouleursWa = {
 }
 
 /**
- * Palette sombre « à la Revolut » pour la mise en route : fond presque noir,
- * grands titres blancs, bouton principal blanc. Elle remplace la palette
- * WhatsApp pour tout ce qui est rendu dans `ThemeWa`.
+ * Palette sombre de la mise en route : l'esprit Revolut (fond sombre, grands
+ * titres, un seul gros bouton) mais aux couleurs de l'app, le vert et le
+ * bleu nuit du WhatsApp sombre, pour ne pas dépayser.
  */
 export const revolut: CouleursWa = {
-  fond: '#0B0B0F',
-  encre: '#FFFFFF',
-  gris: '#9A9AA5',
-  ligne: '#26262E',
-  vert: '#FFFFFF',
-  vertWash: '#FFFFFF',
-  vertEncre: '#0B0B0F',
-  surVert: '#0B0B0F',
-  danger: '#FF5C5C',
-  zoneMoi: '#7B86FF',
-  chipBord: '#3A3A45',
-  chipEncre: '#C9C9D2',
-  champ: '#1B1B22',
-  bouton: '#1B1B22',
-  barre: '#0B0B0F',
-  avatar: '#2A2A33',
-  avatarIcone: '#8E8E9A',
-  papier: '#0B0B0F',
-  bulleOut: '#1B1B22',
-  bulleIn: '#1B1B22',
-  bulleMeta: '#9A9AA5',
+  fond: '#0B141A',
+  encre: '#E9EDEF',
+  gris: '#8696A0',
+  ligne: '#233138',
+  vert: '#21C063',
+  vertWash: '#103529',
+  vertEncre: '#7AE3A5',
+  surVert: '#0B141A',
+  danger: '#F15C6D',
+  zoneMoi: '#53BDEB',
+  chipBord: '#2E3D45',
+  chipEncre: '#D1D7DB',
+  champ: '#1F2C34',
+  bouton: '#1F2C34',
+  barre: '#0B141A',
+  avatar: '#2A3942',
+  avatarIcone: '#8696A0',
+  papier: '#0B141A',
+  bulleOut: '#144D37',
+  bulleIn: '#1F2C34',
+  bulleMeta: '#8696A0',
   lu: '#53BDEB',
-  saisie: '#1B1B22',
-  pastille: '#1B1B22',
+  saisie: '#1F2C34',
+  pastille: '#1F2C34',
 }
 
 /** Force une palette pour un écran entier (la mise en route en sombre). */
