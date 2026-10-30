@@ -84,14 +84,6 @@ export default function Discussions() {
               </Repere>
             </ScrollView>
 
-            <View style={s.archives}>
-              <View style={s.archivesIcone}><Icon name="archive" size={22} color={wa.gris} trait={1.6} /></View>
-              <View style={[s.archivesCorps, { borderBottomColor: wa.ligne }]}>
-                <Text style={[s.archivesTexte, { color: wa.encre }]}>{t('Archivados', 'Archivées')}</Text>
-                <Text style={[s.heure, { color: wa.gris }]}>2</Text>
-              </View>
-            </View>
-
             <Pressable onPress={() => setFiltre(filtre === 'pourmoi' ? (agentLance ? 'action' : 'toutes') : 'pourmoi')} accessibilityRole="button" style={s.archives}>
               <View style={s.archivesIcone}><Icon name="lock" size={21} color={filtre === 'pourmoi' ? wa.zoneMoi : wa.gris} trait={1.6} /></View>
               <View style={[s.archivesCorps, { borderBottomColor: wa.ligne }]}>
