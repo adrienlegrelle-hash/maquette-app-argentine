@@ -11,10 +11,10 @@ export type Langue = 'es' | 'fr'
 export type Categorie = { id: string; nom: string; ids: string[] }
 
 /** Les étapes du questionnaire de Paramètres, dans l'ordre. */
-export const ETAPES = ['vous', 'hotel', 'site', 'chambres', 'regles', 'mercadopago', 'style', 'canaux'] as const
+export const ETAPES = ['vous', 'site', 'hotel', 'chambres', 'regles', 'mercadopago', 'style', 'canaux'] as const
 export type Etape = (typeof ETAPES)[number]
 /** Le démarrage rapide : de quoi lancer l'agent. Le reste se complète ensuite. */
-export const ETAPES_RAPIDES: Etape[] = ['vous', 'hotel', 'site', 'chambres']
+export const ETAPES_RAPIDES: Etape[] = ['vous', 'site', 'hotel', 'chambres']
 export const ETAPES_COMPLETES: Etape[] = ['regles', 'mercadopago', 'style', 'canaux']
 
 export type Chambre = { id: string; nom: string; stock: number; prix: string }
@@ -29,6 +29,12 @@ export type Config = {
   type: string | null
   site: string
   sansSite: boolean
+  booking: string
+  google: string
+  /** L'analyse des pages en ligne a été faite : options et avis en viennent. */
+  analyse: boolean
+  options: string[]
+  aime: string[]
   chambres: Chambre[]
   chambresDuSite: boolean
   arrivee: string
@@ -43,7 +49,7 @@ export type Config = {
 }
 
 const configVide: Config = {
-  prenom: '', role: null, hotel: '', ville: '', type: null, site: '', sansSite: false,
+  prenom: '', role: null, hotel: '', ville: '', type: null, site: '', sansSite: false, booking: '', google: '', analyse: false, options: [], aime: [],
   chambres: [], chambresDuSite: false, arrivee: '14 h', depart: '10 h', animaux: false, enfants: true,
   paiement: 'Le total', mercadoPago: false, style: 'toutes', styleIds: [],
   canaux: { instagram: false, messenger: false, booking: false, mail: false },
@@ -85,6 +91,10 @@ type Etat = {
   setRegleContacts: (v: boolean) => void
   mettrePourMoi: (id: string, v: boolean) => void
   reprendreMain: (id: string, v: boolean) => void
+  /** Le demi-écran de l'assistant ; `question` est posée dès l'ouverture. */
+  agent: { ouvert: boolean; question?: string; n: number }
+  ouvrirAgent: (question?: string) => void
+  fermerAgent: () => void
 }
 
 /** « Pour moi » : l'assistant ne répond jamais. Le choix manuel l'emporte sur la règle. */
@@ -124,11 +134,14 @@ export function EtatProvider({ children }: { children: ReactNode }) {
   const [agentLance, setAgentLance] = useState(false)
   const [checkins, setCheckins] = useState<string[]>([])
   const [regleContacts, setRegleContacts] = useState(true)
+  const [agent, setAgent] = useState<{ ouvert: boolean; question?: string; n: number }>({ ouvert: false, n: 0 })
 
   const valeur = useMemo<Etat>(() => ({
     langue, setLangue, tel, code, conecte, convs, categories, config, faites, bulleFermee, montrer, setMontrer, agentLance,
     lancerAgent: () => setAgentLance(true),
-    checkins, regleContacts, setRegleContacts,
+    checkins, regleContacts, setRegleContacts, agent,
+    ouvrirAgent: (question) => setAgent((a) => ({ ouvert: true, question, n: a.n + 1 })),
+    fermerAgent: () => setAgent((a) => ({ ...a, ouvert: false, question: undefined })),
     mettrePourMoi: (id, v) => setConvs((cs) => cs.map((c) => (c.id === id ? { ...c, pourMoi: v, ecrit: v ? false : c.ecrit } : c))),
     reprendreMain: (id, v) => setConvs((cs) => cs.map((c) => (c.id === id ? { ...c, pause: v, ecrit: v ? false : c.ecrit } : c))),
     basculerCheckin: (id) => setCheckins((cs) => (cs.includes(id) ? cs.filter((x) => x !== id) : [...cs, id])),
@@ -159,7 +172,7 @@ export function EtatProvider({ children }: { children: ReactNode }) {
       setCategories((cats) => [...cats, { id, nom, ids }])
       return id
     },
-  }), [langue, tel, code, conecte, convs, categories, config, faites, bulleFermee, montrer, agentLance, checkins, regleContacts])
+  }), [langue, tel, code, conecte, convs, categories, config, faites, bulleFermee, montrer, agentLance, checkins, regleContacts, agent])
 
   return <Ctx.Provider value={valeur}>{children}</Ctx.Provider>
 }

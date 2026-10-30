@@ -3,6 +3,7 @@ import { TabList, TabSlot, TabTrigger, Tabs, type TabTriggerSlotProps } from 'ex
 import { useState, type ComponentRef, type Ref } from 'react'
 import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { AgentDemiEcran } from '@/components/Agent'
 import { Halo } from '@/components/Repere'
 import { useEtat, useT } from '@/lib/etat'
 import { Icon, type IconName } from '@/lib/icons'
@@ -17,7 +18,7 @@ import { useWa } from '@/lib/theme'
 export default function OngletsLayout() {
   const t = useT()
   const pathname = usePathname()
-  const { conecte, convs, agentLance, bulleFermee, fermerBulle } = useEtat()
+  const { conecte, convs, agentLance, bulleFermee, fermerBulle, agent } = useEtat()
   const [barre, setBarre] = useState({ largeur: 0, hauteur: 0 })
   const nonLues = conecte ? convs.filter((c) => c.nonLus > 0).length : 0
   const aConfigurer = !agentLance
@@ -42,7 +43,8 @@ export default function OngletsLayout() {
           </TabTrigger>
         </Barre>
       </TabList>
-      {bulle && <BulleGuide largeur={barre.largeur} bas={barre.hauteur} onFermer={fermerBulle} />}
+      {bulle && !agent.ouvert && <BulleGuide largeur={barre.largeur} bas={barre.hauteur} onFermer={fermerBulle} />}
+      <AgentDemiEcran />
     </Tabs>
   )
 }

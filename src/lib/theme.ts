@@ -170,6 +170,11 @@ const calClair = {
   attente: '#B45309',
   bloque: '#616161',
   surEvenement: '#FFFFFF',
+  /** Anneau de remplissage : calme, ça se remplit, complet. */
+  occCalme: '#1E8E3E',
+  occTendu: '#E37400',
+  occComplet: '#C5221F',
+  piste: '#E1E3E1',
 }
 
 export type CouleursCal = typeof calClair
@@ -188,6 +193,10 @@ const calSombre: CouleursCal = {
   attente: '#B45309',
   bloque: '#5F6368',
   surEvenement: '#FFFFFF',
+  occCalme: '#81C995',
+  occTendu: '#FDD663',
+  occComplet: '#F28B82',
+  piste: '#3C4043',
 }
 
 export function useCal(): CouleursCal {

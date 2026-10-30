@@ -247,3 +247,42 @@ export const statsMois: { mois: string; reponse: string; seul: number; demandes:
   { mois: 'Octobre 2026', reponse: '38 s', seul: 81, demandes: 142,
     canaux: { whatsapp: { reservations: 16, montant: 3380000 }, instagram: { reservations: 4, montant: 830000 }, messenger: { reservations: 1, montant: 190000 }, booking: { reservations: 4, montant: 760000 }, direct: { reservations: 2, montant: 450000 } } },
 ]
+
+/** Unités de l'hôtel de démo (doubles, cabanes, lits de dortoir). */
+export const UNITES = 11
+
+/**
+ * Unités occupées la nuit du `jour` : les séjours connus, plus un fond de
+ * démo (week-ends plus pleins) pour que le calendrier ait l'air vivant.
+ */
+export function occupation(jour: string) {
+  const [a, m, j] = jour.split('-').map(Number)
+  const d = new Date(Date.UTC(a, m - 1, j))
+  const reel = sejours.filter((s) => s.debut <= jour && jour < s.fin).length
+  const weekend = d.getUTCDay() === 5 || d.getUTCDay() === 6
+  const fond = ((j * 7 + m * 3) % 4) + (weekend ? 5 : 1)
+  return Math.min(UNITES, reel + fond)
+}
+
+/** Ce que l'analyse du site, de Booking et de Google « trouve », en démo. */
+export const esquisse = {
+  hotel: 'Hostal Los Andes',
+  ville: 'Tilcara',
+  type: 'Hostal',
+  chambres: [
+    { id: 'c1', nom: 'Double', stock: 6, prix: '68000' },
+    { id: 'c2', nom: 'Twin', stock: 4, prix: '62000' },
+    { id: 'c3', nom: 'Cabane 4', stock: 2, prix: '95000' },
+    { id: 'c4', nom: 'Dortoir (lit)', stock: 6, prix: '18000' },
+  ],
+  arrivee: '14 h',
+  depart: '10 h',
+  options: ['Petit-déjeuner maison', 'Parking', 'Petits animaux acceptés', 'Excursions à cheval'],
+  aime: ['Le calme et la vue sur les montagnes', 'Le petit-déjeuner maison', 'L’accueil chaleureux de l’équipe'],
+  avis: { note: '4,7', nombre: 128 },
+  sources: [
+    { nom: 'Site internet', trouve: 'Description, photos, horaires' },
+    { nom: 'Booking', trouve: '4 types de chambre, 18 unités, prix' },
+    { nom: 'Google', trouve: '128 avis, note 4,7' },
+  ],
+}

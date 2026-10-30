@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { NouvelleCategorie } from '@/components/NouvelleCategorie'
 import { Points } from '@/components/Points'
+import { BoutonAgent } from '@/components/Agent'
 import { Glisser } from '@/components/Glisser'
 import { Repere } from '@/components/Repere'
 import type { Conversation } from '@/lib/demo'
@@ -51,7 +52,10 @@ export default function Discussions() {
           </View>
         </View>
 
-        <Text accessibilityRole="header" style={[s.titre, { color: wa.encre }]}>{t('Chats', 'Discussions')}</Text>
+        <View style={s.titreLigne}>
+          <Text accessibilityRole="header" style={[s.titre, { color: wa.encre }]}>{t('Chats', 'Discussions')}</Text>
+          <BoutonAgent />
+        </View>
 
         <View style={[s.champ, { backgroundColor: wa.champ }]}>
           <Icon name="search" size={18} color={wa.gris} />
@@ -223,7 +227,8 @@ const s = StyleSheet.create({
   haut: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 6 },
   hautDroite: { flexDirection: 'row', gap: 12 },
   rond: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  titre: { fontSize: 34, fontWeight: '700', letterSpacing: 0.3, paddingHorizontal: 16, marginTop: 14, marginBottom: 10 },
+  titreLigne: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 14, marginTop: 10, marginBottom: 8 },
+  titre: { fontSize: 34, fontWeight: '700', letterSpacing: 0.3, paddingHorizontal: 16 },
   champ: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: 16, borderRadius: 12, paddingHorizontal: 10, height: 38 },
   champTexte: { flex: 1, fontSize: 17, height: 38 },
   filtres: { gap: 8, paddingHorizontal: 16, paddingVertical: 14, alignItems: 'center' },

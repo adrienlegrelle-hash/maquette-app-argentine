@@ -18,7 +18,7 @@ export default function Tablero() {
   const wa = useWa()
   const c = useCouleurs()
   const t = useT()
-  const { convs } = useEtat()
+  const { convs, ouvrirAgent } = useEtat()
   const nAction = convs.filter((x) => x.colonne === 'action').length
   const nEnCours = convs.filter((x) => x.enCours).length
   const aEncaisser = tableau.aEncaisser.reduce((n, x) => n + x.montant, 0)
@@ -38,9 +38,9 @@ export default function Tablero() {
           <Icon name="sparkles" size={20} color={wa.vert} plein />
           <TextInput value={question} onChangeText={setQuestion} placeholder="Posez votre question à l’assistant…"
                      placeholderTextColor={wa.gris} returnKeyType="send" accessibilityLabel="Question pour l’assistant Roomz"
-                     onSubmitEditing={() => { router.push({ pathname: '/aide', params: question.trim() ? { q: question.trim() } : {} }); setQuestion('') }}
+                     onSubmitEditing={() => { ouvrirAgent(question.trim() || undefined); setQuestion('') }}
                      style={[s.questionChamp, { color: wa.encre }]} />
-          <Pressable onPress={() => { router.push({ pathname: '/aide', params: question.trim() ? { q: question.trim() } : {} }); setQuestion('') }}
+          <Pressable onPress={() => { ouvrirAgent(question.trim() || undefined); setQuestion('') }}
                      accessibilityRole="button" accessibilityLabel="Envoyer" style={[s.questionEnvoyer, { backgroundColor: wa.vert }]}>
             <Icon name="send" size={16} color={wa.surVert} plein />
           </Pressable>

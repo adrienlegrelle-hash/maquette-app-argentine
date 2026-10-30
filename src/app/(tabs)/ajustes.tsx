@@ -66,7 +66,7 @@ export default function Ajustes() {
         <Section titre="Votre établissement">
           <Rangee cle="vous" icon="user" titre="Vous" detail={config.prenom || undefined} fait={fait('vous')} onPress={() => ouvrir('vous')} />
           <Rangee cle="hotel" icon="building" titre="L’établissement" detail={config.hotel || undefined} fait={fait('hotel')} onPress={() => ouvrir('hotel')} />
-          <Rangee cle="site" icon="globe" titre="Site internet" detail={config.sansSite ? 'Pas de site' : config.site || undefined} fait={fait('site')} onPress={() => ouvrir('site')} />
+          <Rangee cle="site" icon="globe" titre="Site, Booking, Google" detail={config.sansSite ? 'Rien en ligne' : config.analyse ? 'Analysés' : undefined} fait={fait('site')} onPress={() => ouvrir('site')} />
           <Rangee cle="chambres" icon="bed" titre="Chambres et prix"
                   detail={config.chambres.length ? `${config.chambres.length} type${config.chambres.length > 1 ? 's' : ''}` : undefined}
                   fait={fait('chambres')} onPress={() => ouvrir('chambres')} />

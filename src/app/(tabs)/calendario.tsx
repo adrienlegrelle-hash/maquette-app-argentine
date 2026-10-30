@@ -1,10 +1,11 @@
 import { router } from 'expo-router'
 import { useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import Svg, { Circle } from 'react-native-svg'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Repere } from '@/components/Repere'
 import { AUJOURDHUI, INITIALES, JOURS_COURTS, MOIS, casesDuMois, date, ecart } from '@/lib/dates'
-import { sejours, type Sejour } from '@/lib/demo'
+import { UNITES, occupation, sejours, type Sejour } from '@/lib/demo'
 import { useEtat } from '@/lib/etat'
 import { Icon } from '@/lib/icons'
 import { num, useCal, type CouleursCal } from '@/lib/theme'
@@ -76,7 +77,7 @@ export default function Calendrier() {
               <Text style={[s.journeeTitre, { color: choisi === AUJOURDHUI ? cal.aujourdhui : cal.encre }]}>
                 {choisi === AUJOURDHUI ? 'Aujourd’hui · ' : ''}{JOURS_COURTS[d.getUTCDay()]} {d.getUTCDate()} {MOIS[d.getUTCMonth()]}
               </Text>
-              <Text style={[s.journeeCompte, { color: cal.gris }]}>{jour.length} réservation{jour.length > 1 ? 's' : ''}</Text>
+              <Text style={[s.journeeCompte, num, { color: cal.gris }]}>{occupation(choisi)}/{UNITES} occupées</Text>
               <Pressable onPress={() => setCherche(true)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Chercher une réservation">
                 <Icon name="search" size={18} color={cal.gris} trait={1.7} />
               </Pressable>
@@ -154,21 +155,35 @@ function GrilleMois({ cal, annee, mois, choisi, onChoisir, onMois }: {
           if (!j) return <View key={i} style={s.case} />
           const estAujourdhui = j === AUJOURDHUI
           const estChoisi = j === choisi
-          const points = duJour(j).slice(0, 3)
+          const occ = occupation(j)
           return (
             <Pressable key={j} onPress={() => onChoisir(j)} style={s.case} accessibilityRole="button"
-                       accessibilityLabel={`${date(j).getUTCDate()} ${MOIS[mois]}, ${duJour(j).length} réservation(s)`}>
-              <View style={[s.rondJour, estChoisi && !estAujourdhui && { backgroundColor: cal.choisi }, estAujourdhui && { backgroundColor: cal.aujourdhui }]}>
-                <Text style={[s.numJour, num, { color: estAujourdhui ? cal.surAujourdhui : cal.encre, fontWeight: estChoisi ? '700' : '400' }]}>{date(j).getUTCDate()}</Text>
-              </View>
-              <View style={s.points}>
-                {points.map((p) => <View key={p.id} style={[s.point, { backgroundColor: couleur(cal, p) }]} />)}
+                       accessibilityLabel={`${date(j).getUTCDate()} ${MOIS[mois]}, ${occ} sur ${UNITES} occupées`}>
+              <View style={[s.rondJour, estChoisi && !estAujourdhui && { backgroundColor: cal.choisi }]}>
+                <Anneau cal={cal} taux={occ / UNITES} />
+                <View style={[s.centreJour, estAujourdhui && { backgroundColor: cal.aujourdhui }]}>
+                  <Text style={[s.numJour, num, { color: estAujourdhui ? cal.surAujourdhui : cal.encre, fontWeight: estChoisi ? '700' : '400' }]}>{date(j).getUTCDate()}</Text>
+                </View>
               </View>
             </Pressable>
           )
         })}
       </View>
     </View>
+  )
+}
+
+/** L'anneau fin qui se remplit avec l'occupation de la nuit : vert calme, ambre, rouge complet. */
+function Anneau({ cal, taux }: { cal: CouleursCal; taux: number }) {
+  const r = 16
+  const tour = 2 * Math.PI * r
+  const teinte = taux >= 1 ? cal.occComplet : taux >= 0.7 ? cal.occTendu : cal.occCalme
+  return (
+    <Svg width={38} height={38} viewBox="0 0 38 38" style={s.anneau}>
+      <Circle cx={19} cy={19} r={r} stroke={cal.piste} strokeWidth={2.5} fill="none" />
+      <Circle cx={19} cy={19} r={r} stroke={teinte} strokeWidth={2.5} fill="none" strokeLinecap="round"
+              strokeDasharray={`${tour * Math.min(1, taux)} ${tour}`} transform="rotate(-90 19 19)" />
+    </Svg>
   )
 }
 
@@ -186,12 +201,12 @@ const s = StyleSheet.create({
   grilleEntete: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4 },
   initiales: { flex: 1, flexDirection: 'row' },
   initiale: { flex: 1, textAlign: 'center', fontSize: 12, fontWeight: '500' },
-  cases: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 24 },
-  case: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 2, height: 42 },
-  rondJour: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  cases: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 20 },
+  case: { width: `${100 / 7}%`, alignItems: 'center', paddingVertical: 2, height: 44 },
+  rondJour: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  anneau: { position: 'absolute' },
+  centreJour: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   numJour: { fontSize: 14 },
-  points: { flexDirection: 'row', gap: 2, height: 6, alignItems: 'center' },
-  point: { width: 4, height: 4, borderRadius: 2 },
   journee: { flex: 1, borderTopWidth: StyleSheet.hairlineWidth },
   journeeEntete: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, minHeight: 52 },
   journeeTitre: { flex: 1, fontSize: 17, fontWeight: '600' },

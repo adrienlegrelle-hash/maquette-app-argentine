@@ -1,10 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Champ, Coche, Compteur, Groupe, Interrupteur, Libelle, Note, Puces, Question } from '@/components/Formulaire'
 import { LogoCanal, type Logo } from '@/components/Logos'
-import { chambresDuSite } from '@/lib/demo'
+import { esquisse } from '@/lib/demo'
 import { ETAPES_COMPLETES, ETAPES_RAPIDES, useEtat, type Canal, type Etape } from '@/lib/etat'
 import { AvatarVide, Icon } from '@/lib/icons'
 import { telLisible } from '@/lib/tel'
@@ -24,12 +24,11 @@ export default function Configurer() {
   const ETAPES = rapide ? ETAPES_RAPIDES : ETAPES_COMPLETES
   const [i, setI] = useState(Math.max(0, ETAPES.indexOf(etape as Etape)))
   const [fini, setFini] = useState(false)
-  const { config, majConfig, marquerFaite } = useEtat()
+  const { marquerFaite } = useEtat()
   const e = ETAPES[i]
   const dernier = i === ETAPES.length - 1
 
   const continuer = () => {
-    if (e === 'site' && config.site.trim() && config.chambres.length === 0) majConfig({ chambres: chambresDuSite, chambresDuSite: true })
     marquerFaite(e)
     if (dernier) setFini(true)
     else setI(i + 1)
@@ -97,24 +96,14 @@ function Contenu({ etape }: { etape: Etape }) {
         </Bloc>
       )
     case 'site':
-      return (
-        <Bloc>
-          <Question titre="Avez-vous un site internet ?" sous="Roomz le lit pour connaître vos chambres, vos prix et vos règles. Vous n’aurez qu’à vérifier." />
-          <Champ label="Adresse du site" value={config.site} editable={!config.sansSite}
-                 onChangeText={(site) => majConfig({ site })} placeholder="www.monhotel.com"
-                 keyboardType="url" autoCapitalize="none" autoCorrect={false} />
-          <Coche label="Je n’ai pas de site" valeur={config.sansSite}
-                 onChange={(sansSite) => majConfig({ sansSite, site: sansSite ? '' : config.site })} />
-          {config.sansSite && <Note>Aucun problème : vous remplirez vos chambres à l’étape suivante.</Note>}
-        </Bloc>
-      )
+      return <Analyse />
     case 'chambres': {
       const maj = (id: string, c: Partial<(typeof config.chambres)[number]>) =>
         majConfig({ chambres: config.chambres.map((x) => (x.id === id ? { ...x, ...c } : x)) })
       return (
         <Bloc>
           <Question titre="Vos chambres et vos prix" sous="Par type, comme vous les comptez : 3 doubles, 2 cabanes…" />
-          {config.chambresDuSite && <Note ok>Trouvé sur votre site. Vérifiez et corrigez si besoin.</Note>}
+          {config.chambresDuSite && <Note ok>Trouvé sur Booking et votre site. Vérifiez et corrigez si besoin.</Note>}
           {config.chambres.map((c) => (
             <Groupe key={c.id}>
               <View style={s.chambreHaut}>
@@ -258,6 +247,121 @@ function Contenu({ etape }: { etape: Etape }) {
   }
 }
 
+/**
+ * Site, Booking, Google : on colle ce qu'on a, Roomz lit tout et prépare une
+ * première esquisse de l'hôtel. Simple en surface, chaque partie se déplie.
+ */
+function Analyse() {
+  const wa = useWa()
+  const { config, majConfig } = useEtat()
+  const [phase, setPhase] = useState<'saisie' | 'cours' | 'fini'>(config.analyse ? 'fini' : 'saisie')
+  const [lues, setLues] = useState(0)
+  const quelqueChose = !!(config.site.trim() || config.booking.trim() || config.google.trim())
+
+  // Une source lue toutes les 800 ms ; à la dernière, l'esquisse remplit la config.
+  useEffect(() => {
+    if (phase !== 'cours') return
+    const t = setTimeout(() => {
+      if (lues + 1 < esquisse.sources.length) { setLues(lues + 1); return }
+      majConfig({
+        analyse: true, hotel: config.hotel || esquisse.hotel, ville: config.ville || esquisse.ville, type: config.type ?? esquisse.type,
+        chambres: esquisse.chambres, chambresDuSite: true, arrivee: esquisse.arrivee, depart: esquisse.depart,
+        options: esquisse.options, aime: esquisse.aime,
+      })
+      setLues(esquisse.sources.length)
+      setPhase('fini')
+    }, 800)
+    return () => clearTimeout(t)
+  }, [phase, lues, config, majConfig])
+
+  if (phase === 'saisie') {
+    return (
+      <Bloc>
+        <Question titre="Où vous trouve-t-on en ligne ?" sous="Collez ce que vous avez. Roomz lit tout et prépare une première version de votre hôtel : vous n’aurez qu’à vérifier." />
+        <Champ label="Site internet" value={config.site} onChangeText={(site) => majConfig({ site, sansSite: false })}
+               placeholder="www.monhotel.com" keyboardType="url" autoCapitalize="none" autoCorrect={false} />
+        <Champ label="Page Booking" value={config.booking} onChangeText={(booking) => majConfig({ booking, sansSite: false })}
+               placeholder="booking.com/hotel/ar/…" keyboardType="url" autoCapitalize="none" autoCorrect={false} />
+        <Champ label="Fiche Google (nom ou lien)" value={config.google} onChangeText={(google) => majConfig({ google, sansSite: false })}
+               placeholder="Hostal Los Andes, Tilcara" autoCorrect={false} />
+        <Pressable onPress={() => { setLues(0); setPhase('cours') }} disabled={!quelqueChose} accessibilityRole="button"
+                   style={[s.bouton, { backgroundColor: quelqueChose ? wa.vert : wa.chipBord }]}>
+          <Text style={[s.boutonTexte, { color: wa.surVert }]}>Analyser</Text>
+        </Pressable>
+        <Coche label="Je n’ai rien de tout ça" valeur={config.sansSite}
+               onChange={(sansSite) => majConfig({ sansSite, site: '', booking: '', google: '' })} />
+        {config.sansSite && <Note>Aucun problème : vous remplirez vos chambres juste après, en quelques touchers.</Note>}
+      </Bloc>
+    )
+  }
+
+  if (phase === 'cours') {
+    return (
+      <Bloc>
+        <Question titre="Lecture en cours…" sous="Roomz rassemble ce qui existe déjà sur vous." />
+        <Groupe>
+          {esquisse.sources.map((src, k) => (
+            <View key={src.nom} style={[s.source, k > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: wa.ligne }]}>
+              {k < lues ? <Icon name="checkPlain" size={20} color={wa.vert} trait={2.6} />
+                : k === lues ? <ActivityIndicator color={wa.vert} /> : <View style={s.attente} />}
+              <View style={s.flex}>
+                <Text style={[s.sourceNom, { color: wa.encre }]}>{src.nom}</Text>
+                {k < lues && <Text style={[s.sourceSous, { color: wa.gris }]}>{src.trouve}</Text>}
+              </View>
+            </View>
+          ))}
+        </Groupe>
+      </Bloc>
+    )
+  }
+
+  const unites = config.chambres.reduce((n, c) => n + c.stock, 0)
+  return (
+    <Bloc>
+      <Question titre="Votre première esquisse" sous="Tout est modifiable. Touchez une ligne pour voir le détail." />
+      <Groupe>
+        <Depliable titre={[config.hotel, config.ville].filter(Boolean).join(' · ')} resume={config.type ?? undefined}>
+          <Text style={[s.detail, { color: wa.gris }]}>Repris de votre fiche Google et de Booking.</Text>
+        </Depliable>
+        <Depliable titre={`${unites} unités · ${config.chambres.length} types`} resume="Chambres et prix">
+          {config.chambres.map((c) => (
+            <Text key={c.id} style={[s.detail, num, { color: wa.encre }]}>{c.nom} × {c.stock} · ${Number(c.prix).toLocaleString('es-AR')} / nuit</Text>
+          ))}
+        </Depliable>
+        <Depliable titre={`Arrivée ${config.arrivee} · départ ${config.depart}`} resume="Horaires" />
+        <Depliable titre={`${config.options.length} options`} resume="Services">
+          {config.options.map((o) => <Text key={o} style={[s.detail, { color: wa.encre }]}>• {o}</Text>)}
+        </Depliable>
+        <Depliable titre="Ce que vos voyageurs aiment" resume={`${esquisse.avis.nombre} avis Google · ${esquisse.avis.note} ★`} dernier>
+          {config.aime.map((o) => <Text key={o} style={[s.detail, { color: wa.encre }]}>« {o} »</Text>)}
+          <Text style={[s.detail, { color: wa.gris }]}>L’assistant s’en servira pour donner envie.</Text>
+        </Depliable>
+      </Groupe>
+      <Pressable onPress={() => { majConfig({ analyse: false }); setPhase('saisie') }} style={s.passer}>
+        <Text style={[s.passerTexte, { color: wa.gris }]}>Changer les liens et relancer</Text>
+      </Pressable>
+    </Bloc>
+  )
+}
+
+function Depliable({ titre, resume, children, dernier }: { titre: string; resume?: string; children?: ReactNode; dernier?: boolean }) {
+  const wa = useWa()
+  const [ouvert, setOuvert] = useState(false)
+  return (
+    <View style={!dernier && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: wa.ligne }}>
+      <Pressable onPress={() => children && setOuvert(!ouvert)} accessibilityRole="button" accessibilityState={{ expanded: ouvert }} style={s.depliable}>
+        <View style={s.flex}>
+          <Text style={[s.depliableTitre, { color: wa.encre }]}>{titre}</Text>
+          {resume && <Text style={[s.sourceSous, { color: wa.gris }]}>{resume}</Text>}
+        </View>
+        <Icon name="checkPlain" size={18} color={wa.vert} trait={2.5} />
+        {children && <View style={{ transform: [{ rotate: ouvert ? '180deg' : '0deg' }] }}><Icon name="chevD" size={18} color={wa.gris} /></View>}
+      </Pressable>
+      {ouvert && <View style={s.depliableCorps}>{children}</View>}
+    </View>
+  )
+}
+
 function Bloc({ children }: { children: ReactNode }) {
   return <View style={s.bloc}>{children}</View>
 }
@@ -307,6 +411,14 @@ const s = StyleSheet.create({
   passer: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   passerTexte: { fontSize: 15 },
   separateur: { height: StyleSheet.hairlineWidth },
+  source: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56 },
+  attente: { width: 20, height: 20 },
+  sourceNom: { fontSize: 16, fontWeight: '500' },
+  sourceSous: { fontSize: 13, marginTop: 2 },
+  depliable: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 56, paddingVertical: 8 },
+  depliableTitre: { fontSize: 16, fontWeight: '600' },
+  depliableCorps: { paddingBottom: 12, gap: 4 },
+  detail: { fontSize: 15, lineHeight: 21 },
   chambreHaut: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 52 },
   chambreNom: { flex: 1, fontSize: 18, fontWeight: '600', minHeight: 44 },
   chambreLigne: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 58, borderTopWidth: StyleSheet.hairlineWidth },
