@@ -2,6 +2,7 @@ import { router } from 'expo-router'
 import type { ReactNode } from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { Interrupteur } from '@/components/Formulaire'
+import { LogoCanal } from '@/components/Logos'
 import { Repere } from '@/components/Repere'
 import { EcranOnglet } from '@/components/wa'
 import { ETAPES_COMPLETES, ETAPES_RAPIDES, useEtat, type Etape } from '@/lib/etat'
@@ -80,7 +81,15 @@ export default function Ajustes() {
           <Rangee cle="mercadopago" icon="card" titre="Mercado Pago" detail={config.mercadoPago ? 'Compte lié' : undefined} fait={config.mercadoPago}
                   onPress={() => ouvrir('mercadopago')} />
           <Rangee cle="canaux" icon="chat" titre="Autres canaux" detail={nCanaux ? `${nCanaux} actif${nCanaux > 1 ? 's' : ''}` : undefined}
-                  fait={fait('canaux')} onPress={() => ouvrir('canaux')} dernier />
+                  fait={fait('canaux')} onPress={() => ouvrir('canaux')} dernier
+                  apres={(
+                    <View style={s.logos}>
+                      <LogoCanal nom="instagram" size={20} />
+                      <LogoCanal nom="messenger" size={20} />
+                      <LogoCanal nom="booking" size={20} />
+                      <Text style={[s.suite, { color: wa.gris }]}>…</Text>
+                    </View>
+                  )} />
         </Section>
 
         <Section titre="Assistant">
@@ -117,9 +126,9 @@ function Section({ titre, children }: { titre?: string; children: ReactNode }) {
   )
 }
 
-type RangeeProps = { cle?: string; icon: IconName; titre: string; detail?: string; fait?: boolean; onPress: () => void; dernier?: boolean; danger?: boolean }
+type RangeeProps = { cle?: string; icon: IconName; titre: string; detail?: string; fait?: boolean; onPress: () => void; dernier?: boolean; danger?: boolean; apres?: ReactNode }
 
-function Rangee({ cle, icon, titre, detail, fait, onPress, dernier, danger }: RangeeProps) {
+function Rangee({ cle, icon, titre, detail, fait, onPress, dernier, danger, apres }: RangeeProps) {
   const wa = useWa()
   const encre = danger ? wa.danger : wa.encre
   const ligne = (
@@ -127,9 +136,10 @@ function Rangee({ cle, icon, titre, detail, fait, onPress, dernier, danger }: Ra
       <Icon name={icon} size={22} color={encre} trait={1.7} />
       <View style={[s.rangeeCorps, !dernier && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: wa.ligne }]}>
         <Text style={[s.rangeeTitre, { color: encre }]}>{titre}</Text>
+        {apres}
         {!danger && (fait
           ? <>{detail && <Text numberOfLines={1} style={[s.rangeeDetail, { color: wa.gris }]}>{detail}</Text>}<Icon name="checkPlain" size={18} color={wa.vert} trait={2.5} /></>
-          : <Text style={[s.aFaire, { color: wa.vert }]}>À faire</Text>)}
+          : !apres && <Text style={[s.aFaire, { color: wa.vert }]}>À faire</Text>)}
         {!danger && <Icon name="chevR" size={16} color={wa.gris} />}
       </View>
     </Pressable>
@@ -159,6 +169,8 @@ const s = StyleSheet.create({
   sectionTitre: { fontSize: 13, fontWeight: '500', textTransform: 'uppercase', letterSpacing: 0.3, marginLeft: 4 },
   groupe: { borderRadius: 14, paddingLeft: 16 },
   regle: { paddingRight: 14 },
+  logos: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  suite: { fontSize: 18, fontWeight: '700', marginLeft: 1, marginTop: -6 },
   rangee: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   rangeeCorps: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 50, paddingRight: 14 },
   rangeeTitre: { flex: 1, fontSize: 17 },
