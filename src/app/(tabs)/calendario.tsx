@@ -10,9 +10,10 @@ import { useEtat } from '@/lib/etat'
 import { Icon } from '@/lib/icons'
 import { num, useCal, type CouleursCal } from '@/lib/theme'
 
-/** Les séjours présents le `jour` : arrivées, nuits en cours et départs. */
+/** Les séjours présents le `jour` : arrivées et nuits en cours d'abord, départs du matin à la fin. */
 function duJour(jour: string) {
   return sejours.filter((s) => s.debut <= jour && jour <= s.fin)
+    .sort((a, b) => Number(a.fin === jour) - Number(b.fin === jour))
 }
 
 function dateCourte(jour: string) {
@@ -77,7 +78,9 @@ export default function Calendrier() {
               <Text style={[s.journeeTitre, { color: choisi === AUJOURDHUI ? cal.aujourdhui : cal.encre }]}>
                 {choisi === AUJOURDHUI ? 'Aujourd’hui · ' : ''}{JOURS_COURTS[d.getUTCDay()]} {d.getUTCDate()} {MOIS[d.getUTCMonth()]}
               </Text>
-              <Text style={[s.journeeCompte, num, { color: cal.gris }]}>{occupation(choisi)}/{UNITES} occupées</Text>
+              <Text style={[s.journeeCompte, num, { color: cal.gris }]}>
+                {occupation(choisi)}/{UNITES} occupées{jour.some((e) => e.fin === choisi) ? ` · ${jour.filter((e) => e.fin === choisi).length} départ(s)` : ''}
+              </Text>
               <Pressable onPress={() => setCherche(true)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Chercher une réservation">
                 <Icon name="search" size={18} color={cal.gris} trait={1.7} />
               </Pressable>

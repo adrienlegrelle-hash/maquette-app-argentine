@@ -129,37 +129,6 @@ export const conversations: Conversation[] = [
   },
 ]
 
-/** Le tableau de bord de la démo (onglet Menu), au vendredi 30 octobre. */
-export const tableau = {
-  arrivees: [
-    { nom: 'Agustín Ríos', chambre: { es: 'Doble', fr: 'Double' }, nuits: 2, paye: true },
-    { nom: 'Familia Paredes', chambre: { es: 'Cabaña 4', fr: 'Cabane 4' }, nuits: 3, paye: false },
-  ],
-  departs: 1,
-  /** Unités libres ce soir, par type : stock − réservations − blocages. */
-  libres: [
-    { type: { es: 'Doble', fr: 'Double' }, libres: 1, stock: 3 },
-    { type: { es: 'Cabaña 4', fr: 'Cabane 4' }, libres: 0, stock: 2 },
-    { type: { es: 'Dormi (camas)', fr: 'Dortoir (lits)' }, libres: 3, stock: 6 },
-  ],
-  aEncaisser: [
-    { nom: 'Lucía Fernández', montant: 190000, echeance: { es: 'vence mañana 12:48', fr: 'expire demain 12:48' } },
-    { nom: 'Ramón Díaz', montant: 45000, echeance: { es: 'seña', fr: 'acompte' } },
-  ],
-  /** Unités occupées sur 11, les sept prochaines nuits. */
-  semaine: [
-    { es: 'vie', fr: 'ven', occ: 9 }, { es: 'sáb', fr: 'sam', occ: 11 }, { es: 'dom', fr: 'dim', occ: 7 },
-    { es: 'lun', fr: 'lun', occ: 3 }, { es: 'mar', fr: 'mar', occ: 4 }, { es: 'mié', fr: 'mer', occ: 5 }, { es: 'jue', fr: 'jeu', occ: 8 },
-  ],
-  totalUnites: 11,
-  mois: {
-    reservations: 23,
-    encaisse: 4850000,
-    reponse: '38 s',
-    seul: 81,
-  },
-}
-
 /** « $ 190.000 » : pesos, séparateur de milliers à l'argentine. */
 export function pesos(n: number) {
   return '$ ' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
@@ -186,7 +155,7 @@ export type Sejour = {
   paye: number
 }
 
-export const sejours: Sejour[] = [
+const sejoursFixes: Sejour[] = [
   { id: 's1', nom: 'Agustina Vera', chambre: 'Double', debut: '2026-10-27', fin: '2026-10-29', statut: 'confirmee', canal: 'whatsapp', convId: 'agustina', tel: '+54 9 11 3391-7720', adultes: 2, enfants: 0, options: ['Petit-déjeuner'], montant: 136000, paye: 136000 },
   { id: 's2', nom: 'Agustín Ríos', chambre: 'Double', debut: '2026-10-30', fin: '2026-11-01', statut: 'confirmee', canal: 'instagram', adultes: 2, enfants: 0, options: ['Petit-déjeuner', 'Arrivée tardive (22 h)'], montant: 136000, paye: 136000 },
   { id: 's3', nom: 'Familia Paredes', chambre: 'Cabane 4', debut: '2026-10-30', fin: '2026-11-02', statut: 'attente', canal: 'whatsapp', tel: '+54 9 387 440-1278', adultes: 2, enfants: 2, options: ['Lit bébé'], montant: 285000, paye: 85500 },
@@ -248,22 +217,6 @@ export const statsMois: { mois: string; reponse: string; seul: number; demandes:
     canaux: { whatsapp: { reservations: 16, montant: 3380000 }, instagram: { reservations: 4, montant: 830000 }, messenger: { reservations: 1, montant: 190000 }, booking: { reservations: 4, montant: 760000 }, direct: { reservations: 2, montant: 450000 } } },
 ]
 
-/** Unités de l'hôtel de démo (doubles, cabanes, lits de dortoir). */
-export const UNITES = 11
-
-/**
- * Unités occupées la nuit du `jour` : les séjours connus, plus un fond de
- * démo (week-ends plus pleins) pour que le calendrier ait l'air vivant.
- */
-export function occupation(jour: string) {
-  const [a, m, j] = jour.split('-').map(Number)
-  const d = new Date(Date.UTC(a, m - 1, j))
-  const reel = sejours.filter((s) => s.debut <= jour && jour < s.fin).length
-  const weekend = d.getUTCDay() === 5 || d.getUTCDay() === 6
-  const fond = ((j * 7 + m * 3) % 4) + (weekend ? 5 : 1)
-  return Math.min(UNITES, reel + fond)
-}
-
 /** Ce que l'analyse du site, de Booking et de Google « trouve », en démo. */
 export const esquisse = {
   hotel: 'Hostal Los Andes',
@@ -285,4 +238,124 @@ export const esquisse = {
     { nom: 'Booking', trouve: '4 types de chambre, 18 unités, prix' },
     { nom: 'Google', trouve: '128 avis, note 4,7' },
   ],
+}
+
+/* ── Remplissage cohérent du calendrier ──────────────────────────────────
+ * Chaque unité (chambre ou lit) a sa propre ligne de temps : on y place
+ * d'abord les séjours écrits à la main, puis des séjours générés, sans jamais
+ * dépasser le stock. L'occupation d'une nuit n'est que le compte des séjours.
+ */
+
+/** Le stock de l'hôtel de démo, par type. */
+export const STOCK: Record<string, number> = { 'Double': 3, 'Cabane 4': 2, 'Dortoir': 6 }
+export const UNITES = Object.values(STOCK).reduce((a, b) => a + b, 0)
+const PRIX: Record<string, number> = { 'Double': 68000, 'Cabane 4': 95000, 'Dortoir': 18000 }
+
+const PRENOMS = ['Sofía Ramos', 'Mateo Castro', 'Valentina Ortiz', 'Joaquín Romero', 'Camila Suárez', 'Tomás Herrera',
+  'Martina Aguirre', 'Benjamín Molina', 'Lucas Benítez', 'Julieta Medina', 'Facundo Acosta', 'Florencia Rojas',
+  'Santiago Vega', 'Paula Giménez', 'Ignacio Flores', 'Micaela Luna', 'Franco Cabrera', 'Rocío Sosa', 'Emilia Ruiz',
+  'Gonzalo Peralta', 'Agustina Ríos', 'Nicolás Díaz', 'Carolina Paz', 'Bruno Ledesma', 'Abril Quiroga']
+
+function plus(jour: string, n: number) {
+  const [a, m, j] = jour.split('-').map(Number)
+  return new Date(Date.UTC(a, m - 1, j + n)).toISOString().slice(0, 10)
+}
+
+/** Hasard reproductible : la démo est la même à chaque chargement. */
+function hasard(graine: number) {
+  let t = graine
+  return () => {
+    t = (t + 0x6d2b79f5) | 0
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function genererSejours(): Sejour[] {
+  const r = hasard(30102026)
+  const AUJOURDHUI = '2026-10-30'
+  // Les nuits prises, par unité.
+  const unites: { type: string; nuits: Set<string> }[] = []
+  for (const [type, n] of Object.entries(STOCK)) for (let k = 0; k < n; k++) unites.push({ type, nuits: new Set() })
+  const libre = (u: { nuits: Set<string> }, debut: string, nb: number) => {
+    for (let k = 0; k < nb; k++) if (u.nuits.has(plus(debut, k))) return false
+    return true
+  }
+  const prendre = (u: { nuits: Set<string> }, debut: string, nb: number) => { for (let k = 0; k < nb; k++) u.nuits.add(plus(debut, k)) }
+  const nuitsDe = (s: Sejour) => {
+    const [a, m, j] = s.debut.split('-').map(Number); const [a2, m2, j2] = s.fin.split('-').map(Number)
+    return Math.round((Date.UTC(a2, m2 - 1, j2) - Date.UTC(a, m - 1, j)) / 86400000)
+  }
+
+  const tous: Sejour[] = []
+  for (const s of sejoursFixes) {
+    const u = unites.find((x) => x.type === s.chambre && libre(x, s.debut, nuitsDe(s)))
+    if (!u) continue
+    prendre(u, s.debut, nuitsDe(s))
+    tous.push(s)
+  }
+
+  let n = 0
+  for (const u of unites) {
+    for (let jour = '2026-09-28'; jour < '2027-01-06';) {
+      const jsem = new Date(jour + 'T00:00:00Z').getUTCDay()
+      const weekend = jsem === 5 || jsem === 6
+      const nb = weekend ? 2 + Math.floor(r() * 2) : 1 + Math.floor(r() * 3)
+      if (r() < (weekend ? 0.7 : 0.22) && libre(u, jour, nb)) {
+        prendre(u, jour, nb)
+        const qui = r()
+        const canal: Sejour['canal'] = qui < 0.62 ? 'whatsapp' : qui < 0.8 ? 'instagram' : qui < 0.95 ? 'booking' : 'airbnb'
+        const ical = canal === 'booking' || canal === 'airbnb'
+        const futur = jour >= AUJOURDHUI
+        const statut: Sejour['statut'] = ical ? 'bloque' : futur && r() < 0.2 ? 'attente' : 'confirmee'
+        const montant = ical ? 0 : nb * PRIX[u.type]
+        tous.push({
+          id: `g${++n}`, nom: ical ? (canal === 'booking' ? 'Booking' : 'Airbnb') : PRENOMS[Math.floor(r() * PRENOMS.length)],
+          chambre: u.type, debut: jour, fin: plus(jour, nb), statut, source: ical ? (canal === 'booking' ? 'Booking' : 'Airbnb') : undefined,
+          canal, tel: canal === 'whatsapp' ? `+54 9 388 ${400 + Math.floor(r() * 500)}-${1000 + Math.floor(r() * 8999)}` : undefined,
+          adultes: u.type === 'Dortoir' ? 1 : u.type === 'Cabane 4' ? 2 + Math.floor(r() * 3) : 2,
+          enfants: u.type === 'Cabane 4' && r() < 0.5 ? 1 : 0,
+          options: r() < 0.5 ? ['Petit-déjeuner'] : [],
+          montant, paye: statut === 'attente' ? Math.round(montant * 0.3 * Math.floor(r() * 2)) : montant,
+        })
+        jour = plus(jour, nb + (r() < 0.5 ? 0 : 1))
+      } else {
+        jour = plus(jour, 1)
+      }
+    }
+  }
+  return tous.sort((a, b) => a.debut.localeCompare(b.debut))
+}
+
+export const sejours: Sejour[] = genererSejours()
+
+/** Unités occupées la nuit du `jour`, toujours ≤ stock. */
+export function occupation(jour: string) {
+  return sejours.filter((s) => s.debut <= jour && jour < s.fin).length
+}
+
+const JOURS_ES = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb']
+const JOURS_FR = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam']
+const AUJ = '2026-10-30'
+
+/** Le tableau de bord (onglet Menu), calculé sur les mêmes séjours que le calendrier. */
+export const tableau = {
+  arrivees: sejours.filter((s) => s.debut === AUJ && s.statut !== 'bloque')
+    .map((s) => ({ nom: s.nom, chambre: { es: s.chambre, fr: s.chambre }, nuits: Math.round((Date.parse(s.fin) - Date.parse(s.debut)) / 86400000), paye: s.paye >= s.montant })),
+  departs: sejours.filter((s) => s.fin === AUJ).length,
+  /** Unités libres ce soir, par type : stock − réservations − blocages. */
+  libres: Object.entries(STOCK).map(([type, stock]) => ({
+    type: { es: type, fr: type === 'Dortoir' ? 'Dortoir (lits)' : type },
+    libres: stock - sejours.filter((s) => s.chambre === type && s.debut <= AUJ && AUJ < s.fin).length,
+    stock,
+  })),
+  aEncaisser: sejours.filter((s) => s.statut === 'attente' && s.fin > AUJ && s.montant > s.paye).slice(0, 4)
+    .map((s) => ({ nom: s.nom, montant: s.montant - s.paye, echeance: { es: `llega el ${s.debut.slice(8)}/${s.debut.slice(5, 7)}`, fr: `arrivée le ${s.debut.slice(8)}/${s.debut.slice(5, 7)}` } })),
+  semaine: Array.from({ length: 7 }, (_, k) => {
+    const j = plus(AUJ, k); const d = new Date(j + 'T00:00:00Z').getUTCDay()
+    return { es: JOURS_ES[d], fr: JOURS_FR[d], occ: occupation(j) }
+  }),
+  totalUnites: UNITES,
+  mois: { reservations: 23, encaisse: 4850000, reponse: '38 s', seul: 81 },
 }
