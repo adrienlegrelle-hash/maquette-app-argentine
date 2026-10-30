@@ -76,10 +76,10 @@ export default function Calendrier() {
           ) : (
             <>
               <Text style={[s.journeeTitre, { color: choisi === AUJOURDHUI ? cal.aujourdhui : cal.encre }]}>
-                {choisi === AUJOURDHUI ? 'Aujourd’hui · ' : ''}{JOURS_COURTS[d.getUTCDay()]} {d.getUTCDate()} {MOIS[d.getUTCMonth()]}
+                {JOURS_COURTS[d.getUTCDay()]} {d.getUTCDate()} {MOIS[d.getUTCMonth()]}
               </Text>
               <Text style={[s.journeeCompte, num, { color: cal.gris }]}>
-                {occupation(choisi)}/{UNITES} occupées{jour.some((e) => e.fin === choisi) ? ` · ${jour.filter((e) => e.fin === choisi).length} départ(s)` : ''}
+                {occupation(choisi)}/{UNITES} occupées{jour.some((e) => e.fin === choisi) ? ` · ${jour.filter((e) => e.fin === choisi).length} départ${jour.filter((e) => e.fin === choisi).length > 1 ? 's' : ''}` : ''}
               </Text>
               <Pressable onPress={() => setCherche(true)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Chercher une réservation">
                 <Icon name="search" size={18} color={cal.gris} trait={1.7} />
@@ -122,20 +122,30 @@ function moment(e: Sejour, jour: string) {
   return `Nuit ${ecart(e.debut, jour) + 1} sur ${nuits}`
 }
 
+/**
+ * Une réservation de la journée : carte neutre, texte foncé, le statut en
+ * petite pastille. Une seule couleur par carte, celle du statut, et discrète.
+ */
 function Carte({ cal, e, detail }: { cal: CouleursCal; e: Sejour; detail: string }) {
   const { checkins } = useEtat()
-  const titre = e.statut === 'bloque' ? `Bloqué · ${e.chambre}` : `${e.nom} · ${e.chambre}`
-  const statut = e.statut === 'bloque' ? `Calendrier ${e.source}` : e.statut === 'attente' ? 'À payer' : checkins.includes(e.id) ? 'Arrivé ✓' : null
+  const bloque = e.statut === 'bloque'
+  const titre = bloque ? `Bloqué · ${e.chambre}` : e.nom
+  const statut = bloque ? e.source ?? 'Bloqué' : e.statut === 'attente' ? 'À payer' : checkins.includes(e.id) ? 'Arrivé' : 'Confirmée'
+  const sous = [bloque ? null : e.chambre, detail, bloque ? null : `${e.adultes + e.enfants} pers.`].filter(Boolean).join(' · ')
   return (
     <Pressable onPress={() => router.push({ pathname: '/reservation/[id]', params: { id: e.id } })} accessibilityRole="button"
-               style={({ pressed }) => [s.carte, { backgroundColor: couleur(cal, e), opacity: pressed ? 0.85 : 1 }]}>
+               style={({ pressed }) => [s.carte, { backgroundColor: pressed ? cal.choisi : cal.fond, borderColor: cal.ligne }]}>
       <View style={s.flex}>
-        <Text numberOfLines={1} style={[s.carteTitre, { color: cal.surEvenement }]}>{titre}</Text>
-        <Text numberOfLines={1} style={[s.carteDetail, { color: cal.surEvenement }]}>
-          {[statut, detail, e.statut !== 'bloque' ? `${e.adultes + e.enfants} pers.` : null].filter(Boolean).join(' · ')}
-        </Text>
+        <View style={s.carteHaut}>
+          <Text numberOfLines={1} style={[s.carteTitre, { color: bloque ? cal.gris : cal.encre }]}>{titre}</Text>
+          <View style={s.statut}>
+            <View style={[s.pastille, { backgroundColor: couleur(cal, e) }]} />
+            <Text style={[s.statutTexte, { color: cal.gris }]}>{statut}</Text>
+          </View>
+        </View>
+        <Text numberOfLines={1} style={[s.carteDetail, { color: cal.gris }]}>{sous}</Text>
       </View>
-      <Icon name="chevR" size={18} color={cal.surEvenement} />
+      <Icon name="chevR" size={16} color={cal.gris} />
     </Pressable>
   )
 }
@@ -216,11 +226,15 @@ const s = StyleSheet.create({
   journeeCompte: { fontSize: 13 },
   recherche: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, height: 38 },
   rechercheChamp: { flex: 1, fontSize: 16, height: 36 },
-  liste: { paddingHorizontal: 16, gap: 8 },
+  liste: { paddingHorizontal: 16, gap: 8, paddingTop: 2 },
   rien: { fontSize: 15, paddingTop: 16, textAlign: 'center' },
-  carte: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  carteTitre: { fontSize: 15, fontWeight: '600' },
-  carteDetail: { fontSize: 13, marginTop: 2 },
+  carte: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, paddingVertical: 12 },
+  carteHaut: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  carteTitre: { flex: 1, fontSize: 16, fontWeight: '600' },
+  carteDetail: { fontSize: 13, marginTop: 3 },
+  statut: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  pastille: { width: 8, height: 8, borderRadius: 4 },
+  statutTexte: { fontSize: 12, fontWeight: '500' },
   basDePage: { height: 90 },
   fabZone: { position: 'absolute', right: 16, bottom: 16 },
   fab: { width: 56, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,.18)' },
