@@ -28,8 +28,7 @@ export default function Tablero() {
   const arrivees = sejours.filter((s) => s.debut === AUJOURDHUI && s.statut !== 'bloque')
   const departs = sejours.filter((s) => s.fin === AUJOURDHUI && s.statut !== 'bloque')
   const occ = occupation(AUJOURDHUI)
-  // À encaisser : ce qui reste sur les arrivées du jour, puis la semaine qui vient.
-  const resteAujourdhui = arrivees.reduce((n, a) => n + a.montant - a.paye, 0)
+  // À encaisser : les paiements qui restent sur la semaine qui vient.
   const semaine = tableau.aEncaisser.filter((p) => p.debut <= plusJours(AUJOURDHUI, 7))
   const lignes = [
     ...departs.map((d) => ({ heure: config.depart, quoi: 'Départ', s: d })),
@@ -52,7 +51,6 @@ export default function Tablero() {
         <Text style={[s.salut, { color: wa.encre }]}>Bonjour {config.prenom || 'Hermine'},</Text>
         <Text style={[s.resume, { color: wa.gris }]}>
           Aujourd’hui, <Gras>{pl(arrivees.length, 'arrivée')}</Gras> et <Gras>{pl(departs.length, 'départ')}</Gras>.
-          {resteAujourdhui > 0 && <> Il reste <Gras>{pesos(resteAujourdhui)}</Gras> à encaisser à l’arrivée.</>}
         </Text>
 
         <View style={s.bloc}>
