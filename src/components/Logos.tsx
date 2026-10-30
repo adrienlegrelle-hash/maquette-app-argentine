@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop, Text as SvgText } from 'react-native-svg'
 import { marques } from '@/lib/theme'
 
@@ -6,6 +7,9 @@ export type Logo = 'whatsapp' | 'instagram' | 'messenger' | 'booking' | 'mail'
 
 export function LogoCanal({ nom, size = 36 }: { nom: Logo; size?: number }) {
   const b = marques.blanc
+  // Un identifiant de dégradé propre à chaque logo : sur le web, deux logos
+  // avec le même id se volent le dégradé et l'un s'affiche sans fond.
+  const id = useId().replace(/:/g, '')
   switch (nom) {
     case 'whatsapp':
       return (
@@ -19,13 +23,13 @@ export function LogoCanal({ nom, size = 36 }: { nom: Logo; size?: number }) {
       return (
         <Svg width={size} height={size} viewBox="0 0 36 36">
           <Defs>
-            <LinearGradient id="ig" x1="0" y1="1" x2="1" y2="0">
+            <LinearGradient id={`ig${id}`} x1="0" y1="1" x2="1" y2="0">
               <Stop offset="0" stopColor={marques.instagram[0]} />
               <Stop offset="0.5" stopColor={marques.instagram[1]} />
               <Stop offset="1" stopColor={marques.instagram[2]} />
             </LinearGradient>
           </Defs>
-          <Rect width={36} height={36} rx={9} fill="url(#ig)" />
+          <Rect width={36} height={36} rx={9} fill={`url(#ig${id})`} />
           <Rect x={9} y={9} width={18} height={18} rx={5.5} fill="none" stroke={b} strokeWidth={2.2} />
           <Circle cx={18} cy={18} r={4.3} fill="none" stroke={b} strokeWidth={2.2} />
           <Circle cx={23.2} cy={12.8} r={1.3} fill={b} />
@@ -35,12 +39,12 @@ export function LogoCanal({ nom, size = 36 }: { nom: Logo; size?: number }) {
       return (
         <Svg width={size} height={size} viewBox="0 0 36 36">
           <Defs>
-            <LinearGradient id="ms" x1="0" y1="1" x2="1" y2="0">
+            <LinearGradient id={`ms${id}`} x1="0" y1="1" x2="1" y2="0">
               <Stop offset="0" stopColor={marques.messenger[0]} />
               <Stop offset="1" stopColor={marques.messenger[1]} />
             </LinearGradient>
           </Defs>
-          <Rect width={36} height={36} rx={9} fill="url(#ms)" />
+          <Rect width={36} height={36} rx={9} fill={`url(#ms${id})`} />
           <Path d="M18 8c-5.6 0-10 4.1-10 9.6 0 2.9 1.2 5.4 3.2 7.1V28l3-1.6c1.2.3 2.5.5 3.8.5 5.6 0 10-4.1 10-9.6S23.6 8 18 8Z" fill={b} />
           <Path d="m12 20.5 4-4.3 2.2 2.2 3.8-2.2-4 4.3-2.2-2.2Z" fill={marques.messenger[1]} />
         </Svg>
